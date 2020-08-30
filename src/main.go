@@ -50,6 +50,19 @@ func addRoom(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(room)
 }
 
+func updateRoom(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	body, _ := ioutil.ReadAll(r.Body)
+	var newRoom Room
+	json.Unmarshal(body, &newRoom)
+	for index, room := range rooms {
+		if room.Id == id {
+			rooms[index] = newRoom
+		}
+	}
+}
+
 func deleteRoom(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -66,6 +79,7 @@ func handleRequests() {
 	router.HandleFunc("/rooms", getRooms)
 	router.HandleFunc("/room/{id}", getRoom).Methods("GET")
 	router.HandleFunc("/room", addRoom).Methods("POST")
+	router.HandleFunc("/room/{id}", updateRoom).Methods("PUT")
 	router.HandleFunc("/room/{id}", deleteRoom).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), router))
 }
