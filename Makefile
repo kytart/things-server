@@ -1,8 +1,8 @@
 build:
-	go build -o bin/server src/main.go
+	go build server.go
 
 run:
-	go run src/main.go
+	go run server.go
 
 clean:
-	rm -rf bin
+	rm -rf server
