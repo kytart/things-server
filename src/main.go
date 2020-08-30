@@ -50,12 +50,23 @@ func addRoom(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(room)
 }
 
+func deleteRoom(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	for index, room := range rooms {
+		if room.Id == id {
+			rooms = append(rooms[:index], rooms[index+1:]...)
+		}
+	}
+}
+
 func handleRequests() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", homePage)
 	router.HandleFunc("/rooms", getRooms)
-	router.HandleFunc("/room/{id}", getRoom)
+	router.HandleFunc("/room/{id}", getRoom).Methods("GET")
 	router.HandleFunc("/room", addRoom).Methods("POST")
+	router.HandleFunc("/room/{id}", deleteRoom).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), router))
 }
 
