@@ -13,11 +13,12 @@ import (
 const PORT = 8080
 
 var rooms = []Room{
-	Room{Name: "living_room", Temperature: 20},
-	Room{Name: "bedroom", Temperature: 22},
+	Room{Id: "1", Name: "living_room", Temperature: 20},
+	Room{Id: "2", Name: "bedroom", Temperature: 22},
 }
 
 type Room struct {
+	Id          string `json:"id"`
 	Name        string `json:"name"`
 	Temperature int    `json:"temperature"`
 }
@@ -30,10 +31,21 @@ func getRooms(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(rooms)
 }
 
+func getRoom(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key := vars["id"]
+	for _, room := range rooms {
+		if room.Id == key {
+			json.NewEncoder(w).Encode(room)
+		}
+	}
+}
+
 func handleRequests() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", homePage)
 	router.HandleFunc("/rooms", getRooms)
+	router.HandleFunc("/room/{id}", getRoom)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), router))
 }
 
