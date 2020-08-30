@@ -6,6 +6,8 @@ import (
 	"html"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 const PORT = 8080
@@ -29,9 +31,10 @@ func getRooms(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleRequests() {
-	http.HandleFunc("/", homePage)
-	http.HandleFunc("/rooms", getRooms)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), nil))
+	router := mux.NewRouter().StrictSlash(true)
+	router.HandleFunc("/", homePage)
+	router.HandleFunc("/rooms", getRooms)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), router))
 }
 
 func main() {
