@@ -38,8 +38,10 @@ func getRoom(w http.ResponseWriter, r *http.Request) {
 	for _, room := range rooms {
 		if room.Id == key {
 			json.NewEncoder(w).Encode(room)
+			return
 		}
 	}
+	w.WriteHeader(http.StatusNotFound)
 }
 
 func addRoom(w http.ResponseWriter, r *http.Request) {
@@ -59,8 +61,10 @@ func updateRoom(w http.ResponseWriter, r *http.Request) {
 	for index, room := range rooms {
 		if room.Id == id {
 			rooms[index] = newRoom
+			return
 		}
 	}
+	w.WriteHeader(http.StatusNotFound)
 }
 
 func deleteRoom(w http.ResponseWriter, r *http.Request) {
@@ -69,8 +73,10 @@ func deleteRoom(w http.ResponseWriter, r *http.Request) {
 	for index, room := range rooms {
 		if room.Id == id {
 			rooms = append(rooms[:index], rooms[index+1:]...)
+			return
 		}
 	}
+	w.WriteHeader(http.StatusNotFound)
 }
 
 func handleRequests() {
