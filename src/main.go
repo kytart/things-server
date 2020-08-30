@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -41,11 +42,20 @@ func getRoom(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func addRoom(w http.ResponseWriter, r *http.Request) {
+	body, _ := ioutil.ReadAll(r.Body)
+	var room Room
+	json.Unmarshal(body, &room)
+	rooms = append(rooms, room)
+	json.NewEncoder(w).Encode(room)
+}
+
 func handleRequests() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", homePage)
 	router.HandleFunc("/rooms", getRooms)
 	router.HandleFunc("/room/{id}", getRoom)
+	router.HandleFunc("/room", addRoom).Methods("POST")
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), router))
 }
 
