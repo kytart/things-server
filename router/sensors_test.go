@@ -16,11 +16,24 @@ func TestGetLastReadingOk(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	sensorsStore := sensors.NewInMemorySensorsStore(
+		[]sensors.Sensor{
+			{
+				Id:         "1",
+				Value:      10,
+				RecordedAt: time.Now(),
+			},
+		},
+	)
+
 	recordedAt := time.Now()
-	sensors.RecordValue("1", 10, recordedAt)
+	err = sensorsStore.RecordValue("1", 10, recordedAt)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	rr := httptest.NewRecorder()
-	router := CreateRouter()
+	router := CreateRouter(sensorsStore)
 	router.ServeHTTP(rr, request)
 
 	if rr.Code != http.StatusOK {
@@ -40,8 +53,10 @@ func TestGetLastReadingNotFound(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	sensorsStore := sensors.NewInMemorySensorsStore([]sensors.Sensor{})
+
 	rr := httptest.NewRecorder()
-	router := CreateRouter()
+	router := CreateRouter(sensorsStore)
 	router.ServeHTTP(rr, request)
 
 	if rr.Code != http.StatusNotFound {
@@ -56,15 +71,17 @@ func TestRecordReading(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	sensorsStore := sensors.NewInMemorySensorsStore([]sensors.Sensor{})
+
 	rr := httptest.NewRecorder()
-	router := CreateRouter()
+	router := CreateRouter(sensorsStore)
 	router.ServeHTTP(rr, request)
 
 	if rr.Code != http.StatusOK {
 		t.Errorf("wrong response code: expected %v got %v", rr.Code, http.StatusOK)
 	}
 
-	recordedSensor := sensors.GetSensorById("3")
+	recordedSensor := sensorsStore.GetSensorById("3")
 	if recordedSensor == nil {
 		t.Error("expected creation of new sensor but it wasn't found")
 	} else if recordedSensor.Value != 20 {

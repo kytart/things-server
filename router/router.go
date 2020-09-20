@@ -1,9 +1,12 @@
 package router
 
-import "github.com/gorilla/mux"
+import (
+	"github.com/gorilla/mux"
+	"github.com/kytart/things-server/sensors"
+)
 
-func CreateRouter() *mux.Router {
+func CreateRouter(sensorsStore sensors.SensorsStore) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
-	HandleSensorsRequests(router)
+	HandleSensorsRequests(router, sensorsStore)
 	return router
 }
